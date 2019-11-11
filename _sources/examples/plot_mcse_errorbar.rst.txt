@@ -1,0 +1,15 @@
+
+.. _plot_mcse_errorbar:
+
+
+Quantile MCSE Errobar Plot
+==========================
+
+
+
+.. image:: _images/plot_mcse_errorbar.png
+
+**Python source code:** :download:`[download source: plot_mcse_errorbar.py]<plot_mcse_errorbar.py>`
+
+.. literalinclude:: plot_mcse_errorbar.py
+    :lines: 7-

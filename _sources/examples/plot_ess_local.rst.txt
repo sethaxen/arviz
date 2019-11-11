@@ -1,0 +1,15 @@
+
+.. _plot_ess_local:
+
+
+ESS Local Plot
+==============
+
+
+
+.. image:: _images/plot_ess_local.png
+
+**Python source code:** :download:`[download source: plot_ess_local.py]<plot_ess_local.py>`
+
+.. literalinclude:: plot_ess_local.py
+    :lines: 7-

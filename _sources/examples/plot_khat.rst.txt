@@ -1,0 +1,15 @@
+
+.. _plot_khat:
+
+
+Pareto Shape Plot
+=================
+
+
+
+.. image:: _images/plot_khat.png
+
+**Python source code:** :download:`[download source: plot_khat.py]<plot_khat.py>`
+
+.. literalinclude:: plot_khat.py
+    :lines: 7-

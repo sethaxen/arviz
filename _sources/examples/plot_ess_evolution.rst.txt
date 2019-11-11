@@ -1,0 +1,15 @@
+
+.. _plot_ess_evolution:
+
+
+ESS Quantile Plot
+=================
+
+
+
+.. image:: _images/plot_ess_evolution.png
+
+**Python source code:** :download:`[download source: plot_ess_evolution.py]<plot_ess_evolution.py>`
+
+.. literalinclude:: plot_ess_evolution.py
+    :lines: 7-

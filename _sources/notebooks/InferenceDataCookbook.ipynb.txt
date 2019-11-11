@@ -1,0 +1,974 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Inference Data Cookbook\n",
+    "`InferenceData` is the central data format for ArviZ. `InferenceData` itself is just a container that maintains references to one or more `xarray.Dataset`. Below are various ways to generate an `InferenceData` object. See [here](XarrayforArviZ.ipynb) for more on xarray."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import arviz as az\n",
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From 1d numpy array"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inference data with groups:\n",
+      "\t> posterior\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.Dataset>\n",
+       "Dimensions:  (chain: 1, draw: 100)\n",
+       "Coordinates:\n",
+       "  * chain    (chain) int64 0\n",
+       "  * draw     (draw) int64 0 1 2 3 4 5 6 7 8 9 ... 90 91 92 93 94 95 96 97 98 99\n",
+       "Data variables:\n",
+       "    x        (chain, draw) float64 -0.5987 -1.116 0.7667 ... -1.018 -0.07785\n",
+       "Attributes:\n",
+       "    created_at:  2019-09-15T17:56:22.170325"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "size = 100\n",
+    "dataset = az.convert_to_inference_data(np.random.randn(size))\n",
+    "print(dataset)\n",
+    "dataset.posterior"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From nd numpy array\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inference data with groups:\n",
+      "\t> posterior\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.Dataset>\n",
+       "Dimensions:  (chain: 1, draw: 2, x_dim_0: 3, x_dim_1: 4, x_dim_2: 5)\n",
+       "Coordinates:\n",
+       "  * chain    (chain) int64 0\n",
+       "  * draw     (draw) int64 0 1\n",
+       "  * x_dim_0  (x_dim_0) int64 0 1 2\n",
+       "  * x_dim_1  (x_dim_1) int64 0 1 2 3\n",
+       "  * x_dim_2  (x_dim_2) int64 0 1 2 3 4\n",
+       "Data variables:\n",
+       "    x        (chain, draw, x_dim_0, x_dim_1, x_dim_2) float64 0.3827 ... -1.507\n",
+       "Attributes:\n",
+       "    created_at:  2019-09-15T17:56:22.182246"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "shape = (1, 2, 3, 4, 5)\n",
+    "dataset = az.convert_to_inference_data(np.random.randn(*shape))\n",
+    "print(dataset)\n",
+    "dataset.posterior"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From a dictionary"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inference data with groups:\n",
+      "\t> posterior\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.Dataset>\n",
+       "Dimensions:  (b_dim_0: 10, c_dim_0: 3, c_dim_1: 4, chain: 1, draw: 100)\n",
+       "Coordinates:\n",
+       "  * chain    (chain) int64 0\n",
+       "  * draw     (draw) int64 0 1 2 3 4 5 6 7 8 9 ... 90 91 92 93 94 95 96 97 98 99\n",
+       "  * b_dim_0  (b_dim_0) int64 0 1 2 3 4 5 6 7 8 9\n",
+       "  * c_dim_0  (c_dim_0) int64 0 1 2\n",
+       "  * c_dim_1  (c_dim_1) int64 0 1 2 3\n",
+       "Data variables:\n",
+       "    a        (chain, draw) float64 0.6765 -0.382 -0.2243 ... 1.022 -0.5525\n",
+       "    b        (chain, draw, b_dim_0) float64 -0.3869 -0.5103 ... 0.2466 0.608\n",
+       "    c        (chain, draw, c_dim_0, c_dim_1) float64 -0.8396 -1.368 ... 1.384\n",
+       "Attributes:\n",
+       "    created_at:  2019-09-15T17:56:22.202381"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "datadict = {\n",
+    "    'a': np.random.randn(100),\n",
+    "    'b': np.random.randn(1, 100, 10),\n",
+    "    'c': np.random.randn(1, 100, 3, 4),\n",
+    "}\n",
+    "dataset = az.convert_to_inference_data(datadict)\n",
+    "print(dataset)\n",
+    "dataset.posterior"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From dictionary with coords and dims"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inference data with groups:\n",
+      "\t> posterior\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.Dataset>\n",
+       "Dimensions:  (b1: 10, c1: 3, c2: 4, chain: 1, draw: 100)\n",
+       "Coordinates:\n",
+       "  * chain    (chain) int64 0\n",
+       "  * draw     (draw) int64 0 1 2 3 4 5 6 7 8 9 ... 90 91 92 93 94 95 96 97 98 99\n",
+       "  * b1       (b1) int64 0 1 2 3 4 5 6 7 8 9\n",
+       "  * c1       (c1) int64 0 1 2\n",
+       "  * c2       (c2) int64 0 1 2 3\n",
+       "Data variables:\n",
+       "    a        (chain, draw) float64 1.252 -1.145 -0.09127 ... 0.8395 -0.1739\n",
+       "    b        (chain, draw, b1) float64 -2.811 -0.1507 -0.481 ... -0.2532 1.098\n",
+       "    c        (chain, draw, c1, c2) float64 -1.84 -0.2114 ... -0.005779 -0.07\n",
+       "Attributes:\n",
+       "    created_at:  2019-09-15T17:56:22.225542"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "datadict = {\n",
+    "    'a': np.random.randn(100),\n",
+    "    'b': np.random.randn(1, 100, 10),\n",
+    "    'c': np.random.randn(1, 100, 3, 4),\n",
+    "}\n",
+    "coords = {\n",
+    "    'c1' : np.arange(3), \n",
+    "    'c2' : np.arange(4), \n",
+    "    'b1' : np.arange(10)\n",
+    "}\n",
+    "dims = {\n",
+    "    'b' : ['b1'], \n",
+    "    'c' : ['c1', 'c2']\n",
+    "}\n",
+    "\n",
+    "dataset = az.convert_to_inference_data(\n",
+    "    datadict,\n",
+    "    coords=coords,\n",
+    "    dims=dims\n",
+    ")\n",
+    "print(dataset)\n",
+    "dataset.posterior"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From pymc3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Auto-assigning NUTS sampler...\n",
+      "INFO:pymc3:Auto-assigning NUTS sampler...\n",
+      "Initializing NUTS using jitter+adapt_diag...\n",
+      "INFO:pymc3:Initializing NUTS using jitter+adapt_diag...\n",
+      "Multiprocess sampling (2 chains in 4 jobs)\n",
+      "INFO:pymc3:Multiprocess sampling (2 chains in 4 jobs)\n",
+      "NUTS: [theta_tilde, tau, mu]\n",
+      "INFO:pymc3:NUTS: [theta_tilde, tau, mu]\n",
+      "Sampling 2 chains, 0 divergences: 100%|██████████| 2000/2000 [00:01<00:00, 1977.81draws/s]\n",
+      "100%|██████████| 1000/1000 [00:00<00:00, 2114.22it/s]\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> sample_stats\n",
+       "\t> posterior_predictive\n",
+       "\t> prior\n",
+       "\t> observed_data"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pymc3 as pm\n",
+    "draws = 500\n",
+    "chains = 2\n",
+    "\n",
+    "eight_school_data = {\n",
+    "    'J': 8,\n",
+    "    'y': np.array([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "    'sigma': np.array([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "}\n",
+    "\n",
+    "with pm.Model() as model:\n",
+    "    mu = pm.Normal('mu', mu=0, sd=5)\n",
+    "    tau = pm.HalfCauchy('tau', beta=5)\n",
+    "    theta_tilde = pm.Normal('theta_tilde', mu=0, sd=1, shape=eight_school_data['J'])\n",
+    "    theta = pm.Deterministic('theta', mu + tau * theta_tilde)\n",
+    "    pm.Normal('obs', mu=theta, sd=eight_school_data['sigma'], observed=eight_school_data['y'])\n",
+    "    \n",
+    "    trace = pm.sample(draws, chains=chains)\n",
+    "    prior = pm.sample_prior_predictive()\n",
+    "    posterior_predictive = pm.sample_posterior_predictive(trace)\n",
+    "    \n",
+    "    pm_data = az.from_pymc3(\n",
+    "            trace=trace,\n",
+    "            prior=prior,\n",
+    "            posterior_predictive=posterior_predictive,\n",
+    "            coords={'school': np.arange(eight_school_data['J'])},\n",
+    "            dims={'theta': ['school'], 'theta_tilde': ['school']},\n",
+    "        )\n",
+    "pm_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From pystan"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "INFO:pystan:COMPILING THE C++ CODE FOR MODEL anon_model_9d743830ec4a29fb58eb4660d4b9417f NOW.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> sample_stats\n",
+       "\t> posterior_predictive\n",
+       "\t> observed_data"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pystan\n",
+    "\n",
+    "schools_code = \"\"\"\n",
+    "data {\n",
+    "    int<lower=0> J;\n",
+    "    real y[J];\n",
+    "    real<lower=0> sigma[J];\n",
+    "}\n",
+    "\n",
+    "parameters {\n",
+    "    real mu;\n",
+    "    real<lower=0> tau;\n",
+    "    real theta_tilde[J];\n",
+    "}\n",
+    "\n",
+    "transformed parameters {\n",
+    "    real theta[J];\n",
+    "    for (j in 1:J)\n",
+    "        theta[j] = mu + tau * theta_tilde[j];\n",
+    "}\n",
+    "\n",
+    "model {\n",
+    "    mu ~ normal(0, 5);\n",
+    "    tau ~ cauchy(0, 5);\n",
+    "    theta_tilde ~ normal(0, 1);\n",
+    "    y ~ normal(theta, sigma);\n",
+    "}\n",
+    "\n",
+    "generated quantities {\n",
+    "    vector[J] log_lik;\n",
+    "    vector[J] y_hat;\n",
+    "    for (j in 1:J) {\n",
+    "        log_lik[j] = normal_lpdf(y[j] | theta[j], sigma[j]);\n",
+    "        y_hat[j] = normal_rng(theta[j], sigma[j]);\n",
+    "    }\n",
+    "}\n",
+    "\"\"\"\n",
+    "\n",
+    "eight_school_data = {\n",
+    "    'J': 8,\n",
+    "    'y': np.array([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "    'sigma': np.array([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "}\n",
+    "\n",
+    "stan_model = pystan.StanModel(model_code=schools_code)\n",
+    "fit = stan_model.sampling(data=eight_school_data, control={\"adapt_delta\" : 0.9})\n",
+    "\n",
+    "stan_data = az.from_pystan(\n",
+    "    posterior=fit,\n",
+    "    posterior_predictive='y_hat',\n",
+    "    observed_data=['y'],\n",
+    "    log_likelihood='log_lik',\n",
+    "    coords={'school': np.arange(eight_school_data['J'])},\n",
+    "    dims={\n",
+    "        'theta': ['school'],\n",
+    "        'y': ['school'],\n",
+    "        'log_lik': ['school'],\n",
+    "        'y_hat': ['school'],\n",
+    "        'theta_tilde': ['school']\n",
+    "    }\n",
+    ")\n",
+    "\n",
+    "stan_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From pyro"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> sample_stats\n",
+       "\t> posterior_predictive\n",
+       "\t> prior"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import torch \n",
+    "\n",
+    "import pyro\n",
+    "import pyro.distributions as dist\n",
+    "from pyro.infer import MCMC, NUTS, Predictive\n",
+    "\n",
+    "pyro.enable_validation(True)\n",
+    "pyro.set_rng_seed(0)\n",
+    "\n",
+    "draws = 500\n",
+    "chains = 2\n",
+    "eight_school_data = {\n",
+    "    'J': 8,\n",
+    "    'y': torch.tensor([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "    'sigma': torch.tensor([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "}\n",
+    "\n",
+    "def model(J, sigma, y=None):\n",
+    "    mu = pyro.sample('mu', dist.Normal(0, 5))\n",
+    "    tau = pyro.sample('tau', dist.HalfCauchy(5))\n",
+    "    with pyro.plate('J', J):\n",
+    "        theta_tilde = pyro.sample('theta_tilde', dist.Normal(0, 1))\n",
+    "        theta = mu + tau * theta_tilde\n",
+    "        return pyro.sample(\"obs\", dist.Normal(theta, sigma), obs=y)\n",
+    "\n",
+    "nuts_kernel = NUTS(model, jit_compile=True, ignore_jit_warnings=True)\n",
+    "mcmc = MCMC(nuts_kernel, num_samples=draws, warmup_steps=draws,\n",
+    "            num_chains=chains, disable_progbar=True)\n",
+    "mcmc.run(**eight_school_data)\n",
+    "posterior_samples = mcmc.get_samples()\n",
+    "posterior_predictive = Predictive(model, posterior_samples).get_samples(\n",
+    "    eight_school_data['J'], eight_school_data['sigma'])\n",
+    "prior = Predictive(model, num_samples=500).get_samples(\n",
+    "    eight_school_data['J'], eight_school_data['sigma'])\n",
+    "\n",
+    "pyro_data = az.from_pyro(mcmc, prior=prior, posterior_predictive=posterior_predictive,\n",
+    "                         coords={'school': np.arange(eight_school_data['J'])},\n",
+    "                         dims={'theta': ['school']})\n",
+    "pyro_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From emcee"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> observed_data"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import emcee\n",
+    "\n",
+    "eight_school_data = {\n",
+    "    'J': 8,\n",
+    "    'y': np.array([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "    'sigma': np.array([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "}\n",
+    "\n",
+    "def log_prior_8school(theta,J):\n",
+    "    mu = theta[0]\n",
+    "    tau = theta[1]\n",
+    "    eta = theta[2:]\n",
+    "    # Half-cauchy prior\n",
+    "    if tau<0:\n",
+    "        return -np.inf\n",
+    "    hwhm = 25\n",
+    "    prior_tau = -np.log(tau**2+hwhm**2)\n",
+    "    prior_mu = -(mu/10)**2  # normal prior, loc=0, scale=10\n",
+    "    prior_eta = -np.sum(eta**2)  # normal prior, loc=0, scale=1\n",
+    "    return prior_mu + prior_tau + prior_eta\n",
+    "    \n",
+    "def log_likelihood_8school(theta,y,sigma):\n",
+    "    mu = theta[0]\n",
+    "    tau = theta[1]\n",
+    "    eta = theta[2:]\n",
+    "    return -np.sum(((mu + tau * eta - y) / sigma)**2)\n",
+    "    \n",
+    "def lnprob_8school(theta,J,y,sigma):\n",
+    "    prior = log_prior_8school(theta,J)\n",
+    "    if prior <= -np.inf:\n",
+    "        return -np.inf\n",
+    "    like = log_likelihood_8school(theta,y,sigma)\n",
+    "    return like+prior\n",
+    "\n",
+    "nwalkers = 40\n",
+    "ndim = eight_school_data['J']+2\n",
+    "draws = 1500\n",
+    "pos = np.random.normal(size=(nwalkers,ndim))\n",
+    "pos[:,1] = np.absolute(pos[:,1])\n",
+    "sampler = emcee.EnsembleSampler(nwalkers, \n",
+    "                                ndim, \n",
+    "                                lnprob_8school, \n",
+    "                                args=(eight_school_data['J'], \n",
+    "                                      eight_school_data['y'], \n",
+    "                                      eight_school_data['sigma']\n",
+    "                                     )\n",
+    "                               )\n",
+    "sampler.run_mcmc(pos, draws)\n",
+    "\n",
+    "# define variable names, it cannot be inferred from emcee\n",
+    "var_names = ['mu','tau']+['eta{}'.format(i) for i in range(eight_school_data['J'])]\n",
+    "emcee_data = az.from_emcee(sampler, var_names = var_names)\n",
+    "emcee_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From CmdStanPy"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "INFO:cmdstanpy:compiling c++\n",
+      "INFO:cmdstanpy:compiled model file: /home/canyon/repos/arviz/doc/notebooks/eight_school\n",
+      "INFO:cmdstanpy:start chain 1\n",
+      "INFO:cmdstanpy:start chain 2\n",
+      "INFO:cmdstanpy:start chain 3\n",
+      "INFO:cmdstanpy:start chain 4\n",
+      "INFO:cmdstanpy:finish chain 1\n",
+      "INFO:cmdstanpy:finish chain 2\n",
+      "INFO:cmdstanpy:finish chain 3\n",
+      "INFO:cmdstanpy:finish chain 4\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> sample_stats\n",
+       "\t> posterior_predictive\n",
+       "\t> observed_data"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from cmdstanpy import Model, StanFit\n",
+    "\n",
+    "schools_code = \"\"\"\n",
+    "data {\n",
+    "    int<lower=0> J;\n",
+    "    real y[J];\n",
+    "    real<lower=0> sigma[J];\n",
+    "}\n",
+    "\n",
+    "parameters {\n",
+    "    real mu;\n",
+    "    real<lower=0> tau;\n",
+    "    real theta_tilde[J];\n",
+    "}\n",
+    "\n",
+    "transformed parameters {\n",
+    "    real theta[J];\n",
+    "    for (j in 1:J)\n",
+    "        theta[j] = mu + tau * theta_tilde[j];\n",
+    "}\n",
+    "\n",
+    "model {\n",
+    "    mu ~ normal(0, 5);\n",
+    "    tau ~ cauchy(0, 5);\n",
+    "    theta_tilde ~ normal(0, 1);\n",
+    "    y ~ normal(theta, sigma);\n",
+    "}\n",
+    "\n",
+    "generated quantities {\n",
+    "    vector[J] log_lik;\n",
+    "    vector[J] y_hat;\n",
+    "    for (j in 1:J) {\n",
+    "        log_lik[j] = normal_lpdf(y[j] | theta[j], sigma[j]);\n",
+    "        y_hat[j] = normal_rng(theta[j], sigma[j]);\n",
+    "    }\n",
+    "}\n",
+    "\"\"\"\n",
+    "\n",
+    "with open(\"./eight_school.stan\", \"w\") as f:\n",
+    "    print(schools_code, file=f)\n",
+    "\n",
+    "stan_file = \"./eight_school.stan\"\n",
+    "stan_model = Model(stan_file=stan_file)\n",
+    "stan_model.compile()\n",
+    "\n",
+    "eight_school_data = {'J': 8,\n",
+    "                     'y': np.array([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "                     'sigma': np.array([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "                    }\n",
+    "\n",
+    "stan_fit = stan_model.sample(data=eight_school_data)\n",
+    "\n",
+    "cmdstanpy_data = az.from_cmdstanpy(\n",
+    "    posterior=stan_fit,\n",
+    "    posterior_predictive='y_hat',\n",
+    "    observed_data={'y' : eight_school_data[\"y\"]},\n",
+    "    log_likelihood='log_lik',\n",
+    "    coords={'school': np.arange(eight_school_data['J'])},\n",
+    "    dims={\n",
+    "        'theta': ['school'],\n",
+    "        'y': ['school'],\n",
+    "        'log_lik': ['school'],\n",
+    "        'y_hat': ['school'],\n",
+    "        'theta_tilde': ['school']\n",
+    "        }\n",
+    ")\n",
+    "cmdstanpy_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From CmdStan\n",
+    "\n",
+    "See [from_cmdstan](https://arviz-devs.github.io/arviz/generated/arviz.from_cmdstan.html#arviz.from_cmdstan) for details."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### CmdStan helpers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# save for CmdStan example (needs CmdStanPy run)\n",
+    "stan_fit.save_csvfiles(dir=\"sample_data\", basename=\"eight_school_samples\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "schools_code = \"\"\"\n",
+    "data {\n",
+    "    int<lower=0> J;\n",
+    "    real y[J];\n",
+    "    real<lower=0> sigma[J];\n",
+    "}\n",
+    "\n",
+    "parameters {\n",
+    "    real mu;\n",
+    "    real<lower=0> tau;\n",
+    "    real theta_tilde[J];\n",
+    "}\n",
+    "\n",
+    "transformed parameters {\n",
+    "    real theta[J];\n",
+    "    for (j in 1:J)\n",
+    "        theta[j] = mu + tau * theta_tilde[j];\n",
+    "}\n",
+    "\n",
+    "model {\n",
+    "    mu ~ normal(0, 5);\n",
+    "    tau ~ cauchy(0, 5);\n",
+    "    theta_tilde ~ normal(0, 1);\n",
+    "    y ~ normal(theta, sigma);\n",
+    "}\n",
+    "\n",
+    "generated quantities {\n",
+    "    vector[J] log_lik;\n",
+    "    vector[J] y_hat;\n",
+    "    for (j in 1:J) {\n",
+    "        log_lik[j] = normal_lpdf(y[j] | theta[j], sigma[j]);\n",
+    "        y_hat[j] = normal_rng(theta[j], sigma[j]);\n",
+    "    }\n",
+    "}\n",
+    "\"\"\"\n",
+    "\n",
+    "with open(\"./eight_school.stan\", \"w\") as f:\n",
+    "    print(schools_code, file=f)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "eight_school_data = {\n",
+    "    'J': 8,\n",
+    "    'y': np.array([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "    'sigma': np.array([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pystan\n",
+    "pystan.stan_rdump(eight_school_data, \"./eight_school.data.R\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Bash shell\n",
+    "#\n",
+    "# $ cd cmdstan\n",
+    "# $ make build\n",
+    "# $ make path/to/eight_school\n",
+    "# $ cd path/to\n",
+    "# $ for i in {1..4}\n",
+    "#   do\n",
+    "#     ./eight_school sample random seed=12345 \\\n",
+    "#       id=$i data file=eight_school.data.R \\\n",
+    "#       output file=sample_data/eight_school_samples-$i.csv &\n",
+    "#   done\n",
+    "# $"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "arviz.data.io_cmdstan - INFO - glob found 4 files for 'posterior':\n",
+      "1: sample_data/eight_school_samples-1.csv\n",
+      "2: sample_data/eight_school_samples-2.csv\n",
+      "3: sample_data/eight_school_samples-3.csv\n",
+      "4: sample_data/eight_school_samples-4.csv\n",
+      "INFO:arviz.data.io_cmdstan:glob found 4 files for 'posterior':\n",
+      "1: sample_data/eight_school_samples-1.csv\n",
+      "2: sample_data/eight_school_samples-2.csv\n",
+      "3: sample_data/eight_school_samples-3.csv\n",
+      "4: sample_data/eight_school_samples-4.csv\n",
+      "/home/canyon/miniconda3/envs/arviz/lib/python3.6/site-packages/numba/compiler.py:602: NumbaPerformanceWarning: \n",
+      "The keyword argument 'parallel=True' was specified but no transformation for parallel execution was possible.\n",
+      "\n",
+      "To find out why, try turning on parallel diagnostics, see http://numba.pydata.org/numba-doc/latest/user/parallel.html#diagnostics for help.\n",
+      "\n",
+      "File \"../../arviz/utils.py\", line 339:\n",
+      "@conditional_jit(parallel=True)\n",
+      "def full(shape, x):\n",
+      "^\n",
+      "\n",
+      "  self.func_ir.loc))\n",
+      "/home/canyon/miniconda3/envs/arviz/lib/python3.6/site-packages/numba/compiler.py:602: NumbaPerformanceWarning: \n",
+      "The keyword argument 'parallel=True' was specified but no transformation for parallel execution was possible.\n",
+      "\n",
+      "To find out why, try turning on parallel diagnostics, see http://numba.pydata.org/numba-doc/latest/user/parallel.html#diagnostics for help.\n",
+      "\n",
+      "File \"../../arviz/utils.py\", line 339:\n",
+      "@conditional_jit(parallel=True)\n",
+      "def full(shape, x):\n",
+      "^\n",
+      "\n",
+      "  self.func_ir.loc))\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> sample_stats\n",
+       "\t> posterior_predictive\n",
+       "\t> observed_data"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Let's use .stan and .csv files created/saved by the CmdStanPy procedure\n",
+    "\n",
+    "# glob string\n",
+    "posterior_glob =  \"sample_data/eight_school_samples-[0-9].csv\"\n",
+    "# list of paths\n",
+    "# posterior_list =  [\n",
+    "#     \"sample_data/eight_school_samples-1.csv\",\n",
+    "#     \"sample_data/eight_school_samples-2.csv\",\n",
+    "#     \"sample_data/eight_school_samples-3.csv\",\n",
+    "#     \"sample_data/eight_school_samples-4.csv\",\n",
+    "# ]\n",
+    "\n",
+    "obs_data_path = \"./eight_school.data.R\"\n",
+    "\n",
+    "cmdstan_data = az.from_cmdstan(\n",
+    "    posterior = posterior_glob,\n",
+    "    posterior_predictive='y_hat',\n",
+    "    observed_data=obs_data_path,\n",
+    "    observed_data_var=\"y\",\n",
+    "    log_likelihood='log_lik',\n",
+    "    coords={'school': np.arange(eight_school_data['J'])},\n",
+    "    dims={'theta': ['school'],\n",
+    "          'y': ['school'],\n",
+    "          'log_lik': ['school'],\n",
+    "          'y_hat': ['school'],\n",
+    "          'theta_tilde': ['school']\n",
+    "         }\n",
+    ")\n",
+    "cmdstan_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## From NumPyro"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Inference data with groups:\n",
+       "\t> posterior\n",
+       "\t> sample_stats\n",
+       "\t> posterior_predictive\n",
+       "\t> prior\n",
+       "\t> observed_data"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from jax.random import PRNGKey\n",
+    "\n",
+    "import numpyro\n",
+    "import numpyro.distributions as dist\n",
+    "from numpyro.distributions.transforms import AffineTransform\n",
+    "from numpyro.infer import MCMC, NUTS, Predictive\n",
+    "\n",
+    "numpyro.set_host_device_count(4)\n",
+    "\n",
+    "eight_school_data = {\n",
+    "    'J': 8,\n",
+    "    'y': np.array([28., 8., -3., 7., -1., 1., 18., 12.]),\n",
+    "    'sigma': np.array([15., 10., 16., 11., 9., 11., 10., 18.])\n",
+    "}\n",
+    "\n",
+    "def model(J, sigma, y=None):\n",
+    "    mu = numpyro.sample('mu', dist.Normal(0, 5))\n",
+    "    tau = numpyro.sample('tau', dist.HalfCauchy(5))\n",
+    "    # use non-centered reparameterization\n",
+    "    theta = numpyro.sample('theta', dist.TransformedDistribution(\n",
+    "        dist.Normal(np.zeros(J), 1), AffineTransform(mu, tau)))\n",
+    "    numpyro.sample('y', dist.Normal(theta, sigma), obs=y)\n",
+    "\n",
+    "kernel = NUTS(model)\n",
+    "mcmc = MCMC(kernel, num_warmup=500, num_samples=500, num_chains=4, chain_method='parallel')\n",
+    "mcmc.run(PRNGKey(0), **eight_school_data, extra_fields=['num_steps', 'energy'])\n",
+    "posterior_samples = mcmc.get_samples()\n",
+    "posterior_predictive = Predictive(model, posterior_samples).get_samples(\n",
+    "    PRNGKey(1), eight_school_data['J'], eight_school_data['sigma'])\n",
+    "prior = Predictive(model, num_samples=500).get_samples(\n",
+    "    PRNGKey(2), eight_school_data['J'], eight_school_data['sigma'])\n",
+    "\n",
+    "numpyro_data = az.from_numpyro(mcmc, prior=prior, posterior_predictive=posterior_predictive,\n",
+    "                               coords={'school': np.arange(eight_school_data['J'])},\n",
+    "                               dims={'theta': ['school']})\n",
+    "numpyro_data"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

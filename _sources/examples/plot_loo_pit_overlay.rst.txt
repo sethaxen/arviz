@@ -1,0 +1,15 @@
+
+.. _plot_loo_pit_overlay:
+
+
+LOO-PIT Overlay Plot
+====================
+
+
+
+.. image:: _images/plot_loo_pit_overlay.png
+
+**Python source code:** :download:`[download source: plot_loo_pit_overlay.py]<plot_loo_pit_overlay.py>`
+
+.. literalinclude:: plot_loo_pit_overlay.py
+    :lines: 7-

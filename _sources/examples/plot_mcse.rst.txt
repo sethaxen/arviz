@@ -1,0 +1,15 @@
+
+.. _plot_mcse:
+
+
+Quantile MCSE Plot
+==================
+
+
+
+.. image:: _images/plot_mcse.png
+
+**Python source code:** :download:`[download source: plot_mcse.py]<plot_mcse.py>`
+
+.. literalinclude:: plot_mcse.py
+    :lines: 7-

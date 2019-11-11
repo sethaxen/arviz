@@ -1,0 +1,15 @@
+
+.. _plot_elpd:
+
+
+ELPD Plot
+=========
+
+
+
+.. image:: _images/plot_elpd.png
+
+**Python source code:** :download:`[download source: plot_elpd.py]<plot_elpd.py>`
+
+.. literalinclude:: plot_elpd.py
+    :lines: 7-

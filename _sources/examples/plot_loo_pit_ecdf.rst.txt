@@ -1,0 +1,15 @@
+
+.. _plot_loo_pit_ecdf:
+
+
+LOO-PIT ECDF Plot
+=================
+
+
+
+.. image:: _images/plot_loo_pit_ecdf.png
+
+**Python source code:** :download:`[download source: plot_loo_pit_ecdf.py]<plot_loo_pit_ecdf.py>`
+
+.. literalinclude:: plot_loo_pit_ecdf.py
+    :lines: 7-
